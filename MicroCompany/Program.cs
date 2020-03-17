@@ -10,9 +10,10 @@ namespace MicroCompany
         {
             var r = new Random(DateTime.Now.Millisecond);
             var stock = CreateStock();
+            var missingOportunity = new MissingOportunity();
             while (true)
             {
-                PrintLine($"Stock [{stock.Capacity}]: {stock["Z"]} {stock["B"]} {stock["K"]}");
+                PrintLine($"Stock [{stock.Capacity} | {missingOportunity.IncomeLoss}]: {stock["Z"]} {stock["B"]} {stock["K"]}");
                 var buyer = CreateBuyer(r, stock);
                 Print($"@New buyer: {buyer} ", ConsoleColor.Yellow);
                 if (stock.CanSatisfy(buyer))
@@ -22,7 +23,14 @@ namespace MicroCompany
                 }
                 else
                 {
+                    missingOportunity.RegisterLoss(buyer.ItemTag, buyer.Amount);
                     PrintLine("!Out of stock!", ConsoleColor.Red);
+                }
+
+                if (missingOportunity.IncomeLoss > stock.Capacity)
+                {
+                    PrintLine("GAME OVER!");
+                    break;
                 }
                 await Task.Delay(TimeSpan.FromSeconds(2));
             }
