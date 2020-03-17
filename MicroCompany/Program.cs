@@ -13,8 +13,11 @@ namespace MicroCompany
             var missingOportunity = new MissingOportunity();
             while (true)
             {
-                PrintLine($"Stock [{stock.Capacity} | {missingOportunity.IncomeLoss}]: {stock["Z"]} {stock["B"]} {stock["K"]}");
-                var buyer = CreateBuyer(r, stock);
+                PrintLine($"{stock}");
+                var buyer = CreateBuyer(r,
+                maxOrderAmount: stock.Capacity / 10,
+                itemsInStock: stock.Count(),
+                items: stock.ToArray());
                 Print($"@New buyer: {buyer} ", ConsoleColor.Yellow);
                 if (stock.CanSatisfy(buyer))
                 {
@@ -32,6 +35,7 @@ namespace MicroCompany
                     PrintLine("GAME OVER!");
                     break;
                 }
+
                 await Task.Delay(TimeSpan.FromSeconds(2));
             }
         }
@@ -60,11 +64,11 @@ namespace MicroCompany
             }
         }
 
-        private static Buyer CreateBuyer(Random r, Stock s)
+        private static Buyer CreateBuyer(Random r, int maxOrderAmount, int itemsInStock, Item[] items)
         {
-            var amount = r.Next(1, s.Capacity / 10);
-            var itemTagOffset = r.Next(0, s.Count());
-            return new Buyer(amount, s.Skip(itemTagOffset).Take(1).Single().Tag);
+            var amount = r.Next(1, maxOrderAmount + 1);
+            var itemTagOffset = r.Next(0, itemsInStock);
+            return new Buyer(amount, items[itemTagOffset].Tag);
         }
 
         private static Stock CreateStock()
